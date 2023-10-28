@@ -315,6 +315,7 @@ public class YarnClientImpl extends YarnClient {
     }
 
     //TODO: YARN-1763:Handle RM failovers during the submitApplication call.
+    // 提交作业。
     rmClient.submitApplication(request);
 
     int pollCount = 0;
@@ -328,6 +329,7 @@ public class YarnClientImpl extends YarnClient {
                                   YarnApplicationState.KILLED);		
     while (true) {
       try {
+        // 等待作业提交的结果。
         ApplicationReport appReport = getApplicationReport(applicationId);
         YarnApplicationState state = appReport.getYarnApplicationState();
         if (!waitingStates.contains(state)) {
@@ -338,7 +340,7 @@ public class YarnClientImpl extends YarnClient {
           LOG.info("Submitted application " + applicationId);
           break;
         }
-
+        // 作业提交超时。
         long elapsedMillis = System.currentTimeMillis() - startTime;
         if (enforceAsyncAPITimeout() &&
             elapsedMillis >= asyncApiPollTimeoutMillis) {

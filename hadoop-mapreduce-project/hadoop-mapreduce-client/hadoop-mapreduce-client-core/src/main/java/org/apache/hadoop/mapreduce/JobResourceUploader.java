@@ -202,10 +202,13 @@ class JobResourceUploader {
     Map<String, Boolean> archiveSCUploadPolicies =
         new LinkedHashMap<String, Boolean>();
 
+    // 将配置文件上传到staging目录，并且将上传好的路径添加到配置mapreduce.job.cache.files中
     uploadFiles(job, files, submitJobDir, mapredSysPerms, replication,
         fileSCUploadPolicies, statCache);
+    // 将jar文件上传到staging目录，并且将上传好的路径添加到配置mapreduce.job.cache.files中
     uploadLibJars(job, libjars, submitJobDir, mapredSysPerms, replication,
         fileSCUploadPolicies, statCache);
+    // 将归档保信息上传到staging目录，将上传好的路径放到配置mapreduce.job.cache.archives中
     uploadArchives(job, archives, submitJobDir, mapredSysPerms, replication,
         archiveSCUploadPolicies, statCache);
     uploadJobJar(job, jobJar, submitJobDir, replication, statCache);

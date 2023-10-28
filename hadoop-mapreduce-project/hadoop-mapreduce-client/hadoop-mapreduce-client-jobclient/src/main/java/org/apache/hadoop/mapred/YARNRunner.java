@@ -327,6 +327,7 @@ public class YARNRunner implements ClientProtocol {
 
     // Submit to ResourceManager
     try {
+      // 提交作业
       ApplicationId applicationId =
           resMgrDelegate.submitApplication(appContext);
 
@@ -580,6 +581,7 @@ public class YARNRunner implements ClientProtocol {
         ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
 
     // Setup ContainerLaunchContext for AM container
+    // 构造AM命令。
     List<String> vargs = setupAMCommand(jobConf);
     ContainerLaunchContext amContainer = setupContainerLaunchContextForAM(
         jobConf, localResources, securityTokens, vargs);

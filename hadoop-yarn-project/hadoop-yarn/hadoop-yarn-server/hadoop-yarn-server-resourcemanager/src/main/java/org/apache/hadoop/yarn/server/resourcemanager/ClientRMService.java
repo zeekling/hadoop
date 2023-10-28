@@ -683,7 +683,7 @@ public class ClientRMService extends AbstractService implements
     }
 
     try {
-      // call RMAppManager to submit application directly
+      // call RMAppManager to submit application directly  调用RMAppManager提交作业。
       rmAppManager.submitApplication(submissionContext,
           System.currentTimeMillis(), userUgi);
 

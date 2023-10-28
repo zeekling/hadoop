@@ -143,8 +143,9 @@ class JobSubmitter {
     checkSpecs(job);
 
     Configuration conf = job.getConfiguration();
+    // 分布式缓存优化
     addMRFrameworkToDistributedCache(conf);
-
+    // 获取Staging目录
     Path jobStagingArea = JobSubmissionFiles.getStagingDir(cluster, conf);
     //configure the command line options correctly on the submitting dfs
     InetAddress ip = InetAddress.getLocalHost();
@@ -154,6 +155,7 @@ class JobSubmitter {
       conf.set(MRJobConfig.JOB_SUBMITHOST,submitHostName);
       conf.set(MRJobConfig.JOB_SUBMITHOSTADDR,submitHostAddress);
     }
+    // 从yarn上面获取Yarn ApplicationId
     JobID jobId = submitClient.getNewJobID();
     job.setJobID(jobId);
     Path submitJobDir = new Path(jobStagingArea, jobId.toString());
@@ -167,6 +169,7 @@ class JobSubmitter {
       LOG.debug("Configuring job " + jobId + " with " + submitJobDir 
           + " as the submit dir");
       // get delegation token for the dir
+      // 获取访问hdfs的token
       TokenCache.obtainTokensForNamenodes(job.getCredentials(),
           new Path[] { submitJobDir }, conf);
       
@@ -190,9 +193,10 @@ class JobSubmitter {
         LOG.warn("Max job attempts set to 1 since encrypted intermediate" +
                 "data spill is enabled");
       }
-
+      // 将需要上传的文件拷贝到submitJobDir下面，将上传的结果添加到指定的配置中。
       copyAndConfigureFiles(job, submitJobDir);
 
+      // 获取job.xml的具体路径
       Path submitJobFile = JobSubmissionFiles.getJobConfPath(submitJobDir);
       
       // Create the splits for the job
@@ -248,6 +252,7 @@ class JobSubmitter {
       // Now, actually submit the job (using the submit name)
       //
       printTokens(jobId, job.getCredentials());
+      // 真正提交作业的流程
       status = submitClient.submitJob(
           jobId, submitJobDir.toString(), job.getCredentials());
       if (status != null) {
