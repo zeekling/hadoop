@@ -3095,8 +3095,10 @@ public class DataNode extends ReconfigurableBase
   @InterfaceAudience.Private
   public static DataNode createDataNode(String args[], Configuration conf,
       SecureResources resources) throws IOException {
+    // 初始化DataNode
     DataNode dn = instantiateDataNode(args, conf, resources);
     if (dn != null) {
+      // 启动DataNode
       dn.runDatanodeDaemon();
     }
     return dn;

@@ -775,6 +775,7 @@ public class NameNode extends ReconfigurableBase implements
     }
 
     if (NamenodeRole.NAMENODE == role) {
+      // 启动HTTPServer,会调用NameNodeHttpServer中的start函数，是基于org.eclipse.jetty.server.Server实现的
       startHttpServer(conf);
     }
     // 从本地加载FSImage，并且与Editlog合并产生新的FSImage
