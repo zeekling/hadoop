@@ -746,10 +746,10 @@ public class NameNode extends ReconfigurableBase implements
           intervals);
       }
     }
-
+    //登录kerberos
     UserGroupInformation.setConfiguration(conf);
     loginAsNameNodeUser(conf);
-
+    // 注册监控信息
     NameNode.initMetrics(conf, this.getRole());
     StartupProgressMetrics.register(startupProgress);
 
@@ -777,10 +777,13 @@ public class NameNode extends ReconfigurableBase implements
     if (NamenodeRole.NAMENODE == role) {
       startHttpServer(conf);
     }
-
+    // 从本地加载FSImage，并且与Editlog合并产生新的FSImage
     loadNamesystem(conf);
+    //TODO 待确认用途
     startAliasMapServerIfNecessary(conf);
 
+    //创建rpcserver，封装了NameNodeRpcServer、ClientRPCServer
+    //支持ClientNameNodeProtocol、DataNodeProtocolPB等协议
     rpcServer = createRpcServer(conf);
 
     initReconfigurableBackoffKey();
@@ -801,6 +804,7 @@ public class NameNode extends ReconfigurableBase implements
       }
     }
 
+    //启动执行多个重要的工作线程
     startCommonServices(conf);
     startMetricsLogger(conf);
   }
@@ -880,6 +884,7 @@ public class NameNode extends ReconfigurableBase implements
 
   /** Start the services common to active and standby states */
   private void startCommonServices(Configuration conf) throws IOException {
+    // 创建NameNodeResourceChecker、激活BlockManager等
     namesystem.startCommonServices(conf, haContext);
     registerNNSMXBean();
     if (NamenodeRole.NAMENODE != role) {
@@ -890,8 +895,10 @@ public class NameNode extends ReconfigurableBase implements
         httpServer.setAliasMap(levelDBAliasMapServer.getAliasMap());
       }
     }
+    // 启动rpc服务
     rpcServer.start();
     try {
+      // 获取启动插件列表
       plugins = conf.getInstances(DFS_NAMENODE_PLUGINS_KEY,
           ServicePlugin.class);
     } catch (RuntimeException e) {
@@ -900,8 +907,10 @@ public class NameNode extends ReconfigurableBase implements
           pluginsValue, e);
       throw e;
     }
+    // 启动所有插件
     for (ServicePlugin p: plugins) {
       try {
+        // 调用插件的start接口，需要插件自己实现，需要实现接口ServicePlugin
         p.start(this);
       } catch (Throwable t) {
         LOG.warn("ServicePlugin " + p + " could not be started", t);
@@ -1025,11 +1034,13 @@ public class NameNode extends ReconfigurableBase implements
           + " this namenode/service.", clientNamenodeAddress);
     }
     this.haEnabled = HAUtil.isHAEnabled(conf, nsId);
+    // 检查HA的状态,主要是判断当前启动的是主实例还是备实例
     state = createHAState(getStartupOption(conf));
     this.allowStaleStandbyReads = HAUtil.shouldAllowStandbyReads(conf);
     this.haContext = createHAContext();
     try {
       initializeGenericKeys(conf, nsId, namenodeId);
+      // 启动NameNode
       initialize(getConf());
       state.prepareToEnterState(haContext);
       try {

@@ -805,6 +805,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
 
     long loadStart = monotonicNow();
     try {
+      // 加载FSImage，将其和EditLog合并生成新的FSImage,因此可能启动的是欧会比较慢。
       namesystem.loadFSImage(startOpt);
     } catch (IOException ioe) {
       LOG.warn("Encountered exception loading fsimage", ioe);
@@ -1302,14 +1303,17 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     writeLock();
     this.haContext = haContext;
     try {
+      //创建NameNodeResourceChecker，并立即检查一次
       nnResourceChecker = new NameNodeResourceChecker(conf);
       checkAvailableResources();
       assert !blockManager.isPopulatingReplQueues();
       StartupProgress prog = NameNode.getStartupProgress();
       prog.beginPhase(Phase.SAFEMODE);
+      //获取已完成的数据块总量
       long completeBlocksTotal = getCompleteBlocksTotal();
       prog.setTotal(Phase.SAFEMODE, STEP_AWAITING_REPORTED_BLOCKS,
           completeBlocksTotal);
+      // 激活blockManager，blockManager负责管理文件系统中文件的物理块与实际存储位置的映射关系，是NameNode的核心功能之一。
       blockManager.activate(conf, completeBlocksTotal);
     } finally {
       writeUnlock("startCommonServices");
@@ -1321,6 +1325,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
       inodeAttributeProvider.start();
       dir.setINodeAttributeProvider(inodeAttributeProvider);
     }
+    // 注册快照管理器
     snapshotManager.registerMXBean();
     InetSocketAddress serviceAddress = NameNode.getServiceAddress(conf, true);
     this.nameNodeHostName = (serviceAddress != null) ?
