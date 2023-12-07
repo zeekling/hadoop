@@ -1455,6 +1455,7 @@ public class JobImpl implements org.apache.hadoop.mapreduce.v2.app.job.Job,
       }
       
       try {
+        // 初始化token等信息。
         setup(job);
         job.fs = job.getFileSystem(job.conf);
 

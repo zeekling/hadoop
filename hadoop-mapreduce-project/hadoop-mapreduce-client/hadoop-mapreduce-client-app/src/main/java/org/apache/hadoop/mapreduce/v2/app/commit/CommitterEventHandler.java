@@ -252,6 +252,7 @@ public class CommitterEventHandler extends AbstractService
     @SuppressWarnings("unchecked")
     protected void handleJobSetup(CommitterJobSetupEvent event) {
       try {
+        // 主要是创建attempt路径
         committer.setupJob(event.getJobContext());
         context.getEventHandler().handle(
             new JobSetupCompletedEvent(event.getJobID()));
