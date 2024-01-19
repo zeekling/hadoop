@@ -277,6 +277,7 @@ public class DFSOutputStream extends FSOutputSummer
       while (shouldRetry) {
         shouldRetry = false;
         try {
+          // 通过rpc调用namenode(或者router，router最终还是会调用到namnode)创建文件。
           stat = dfsClient.namenode.create(src, masked, dfsClient.clientName,
               new EnumSetWritable<>(flag), createParent, replication,
               blockSize, SUPPORTED_CRYPTO_VERSIONS, ecPolicyName,

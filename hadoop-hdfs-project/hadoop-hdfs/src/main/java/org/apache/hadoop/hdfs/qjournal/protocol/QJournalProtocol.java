@@ -42,6 +42,9 @@ import org.apache.hadoop.security.KerberosInfo;
  * 
  * This is responsible for sending edits as well as coordinating
  * recovery of the nodes.
+ * 主要适用于Journal组件中处理edits log：
+ * 1、 接受edit log
+ * 2、 发送edit给namenode，方便恢复
  */
 @KerberosInfo(
     serverPrincipal = DFSConfigKeys.DFS_JOURNALNODE_KERBEROS_PRINCIPAL_KEY,

@@ -785,6 +785,7 @@ public class NameNodeRpcServer implements NamenodeProtocols {
       String storagePolicy)
       throws IOException {
     checkNNStartup();
+    // 获取客户端的ip
     String clientMachine = getClientMachine();
     if (stateChangeLog.isDebugEnabled()) {
       stateChangeLog.debug("*DIR* NameNode.create: file "

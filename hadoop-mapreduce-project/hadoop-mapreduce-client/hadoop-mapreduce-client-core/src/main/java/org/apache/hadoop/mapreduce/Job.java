@@ -1669,12 +1669,14 @@ public class Job extends JobContextImpl implements JobContext, AutoCloseable {
          throws IOException, InterruptedException, ClassNotFoundException {
     ensureState(JobState.DEFINE);
     setUseNewAPI();
+    // 连接RM
     connect();
     final JobSubmitter submitter = 
         getJobSubmitter(cluster.getFileSystem(), cluster.getClient());
     status = ugi.doAs(new PrivilegedExceptionAction<JobStatus>() {
       public JobStatus run() throws IOException, InterruptedException, 
       ClassNotFoundException {
+        // 提交作业
         return submitter.submitJobInternal(Job.this, cluster);
       }
     });
