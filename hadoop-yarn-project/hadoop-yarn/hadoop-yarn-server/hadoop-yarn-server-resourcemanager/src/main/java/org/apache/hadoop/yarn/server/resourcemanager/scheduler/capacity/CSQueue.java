@@ -213,6 +213,8 @@ public interface CSQueue extends SchedulerQueue<CSQueue> {
 
   /**
    * Assign containers to applications in the queue or it's children (if any).
+   * 分配资源，包括父队列以及子队列
+   *
    * @param clusterResource the resource of the cluster.
    * @param candidates {@link CandidateNodeSet} the nodes that are considered
    *                   for the current placement.

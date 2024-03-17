@@ -515,6 +515,13 @@ public class CapacityScheduler extends
 
   private final static Random random = new Random(System.currentTimeMillis());
 
+  /**
+   * 跳过已经由2次心跳周期没有上报的节点。
+   * @param node
+   * @param cs
+   * @param printVerboseLog
+   * @return
+   */
   private static boolean shouldSkipNodeSchedule(FiCaSchedulerNode node,
       CapacityScheduler cs, boolean printVerboseLog) {
     // Skip node which missed 2 heartbeats since the node might be dead and
@@ -557,7 +564,7 @@ public class CapacityScheduler extends
       printedVerboseLoggingForAsyncScheduling = false;
     }
 
-    // Allocate containers of node [start, end)
+    // Allocate containers of node [start, end) 从随机的节点开始分配，可以保证分配均衡。
     for (FiCaSchedulerNode node : nodes) {
       if (current++ >= start) {
         if (shouldSkipNodeSchedule(node, cs, printSkipedNodeLogging)) {
@@ -569,7 +576,7 @@ public class CapacityScheduler extends
 
     current = 0;
 
-    // Allocate containers of node [0, start)
+    // Allocate containers of node [0, start) 从0到随机的节点
     for (FiCaSchedulerNode node : nodes) {
       if (current++ > start) {
         break;
@@ -1796,6 +1803,7 @@ public class CapacityScheduler extends
     if (!multiNodePlacementEnabled) {
       ActivitiesLogger.NODE.startNodeUpdateRecording(activitiesManager,
           node.getNodeID());
+      // 申请资源到单个节点，老版本逻辑
       assignment = allocateContainerOnSingleNode(candidates,
           node, withNodeHeartbeat);
       ActivitiesLogger.NODE.finishNodeUpdateRecording(activitiesManager,
@@ -1803,6 +1811,7 @@ public class CapacityScheduler extends
     } else{
       ActivitiesLogger.NODE.startNodeUpdateRecording(activitiesManager,
           ActivitiesManager.EMPTY_NODE_ID);
+      // 申请资源到多个节点，新逻辑
       assignment = allocateContainersOnMultiNodes(candidates);
       ActivitiesLogger.NODE.finishNodeUpdateRecording(activitiesManager,
           ActivitiesManager.EMPTY_NODE_ID, candidates.getPartition());
