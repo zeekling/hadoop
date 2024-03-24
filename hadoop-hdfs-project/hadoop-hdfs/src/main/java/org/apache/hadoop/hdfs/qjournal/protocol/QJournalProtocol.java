@@ -104,6 +104,7 @@ public interface QJournalProtocol {
   
   /**
    * Start writing to a new log segment on the JournalNode.
+   * NameNode 发送命令让 JournalNode 开启一个新的日志段 LogSegment
    * Before calling this, one should finalize the previous segment
    * using {@link #finalizeLogSegment(RequestInfo, long, long)}.
    * 
