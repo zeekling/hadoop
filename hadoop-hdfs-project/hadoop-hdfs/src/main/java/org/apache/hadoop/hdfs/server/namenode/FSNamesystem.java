@@ -1218,12 +1218,13 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     return Collections.unmodifiableList(auditLoggers);
   }
 
+  // FSNamesystem在初始化完FSDirectory dir成员，会调用loadFSImage方法，从fsimage和edits加载元数据信息
   private void loadFSImage(StartupOption startOpt) throws IOException {
     final FSImage fsImage = getFSImage();
 
-    // format before starting up if requested
+    // format before starting up if requested // 如果启动选项类型为FORMAT（格式化），在启动之前需要进行格式化
     if (startOpt == StartupOption.FORMAT) {
-      // reuse current id
+      // reuse current id 对FSImage执行格式化操作
       fsImage.format(this, fsImage.getStorage().determineClusterId(), false);
 
       startOpt = StartupOption.REGULAR;
