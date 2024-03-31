@@ -201,6 +201,9 @@ public class FSDirectory implements Closeable {
   private final String supergroup;
   private final INodeId inodeId;
 
+  /**
+   * 写editlog。
+   */
   private final FSEditLog editLog;
 
   private HdfsFileStatus[] reservedStatuses;

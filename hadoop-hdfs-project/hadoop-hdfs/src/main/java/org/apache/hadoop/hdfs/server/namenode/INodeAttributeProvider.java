@@ -34,6 +34,7 @@ import java.util.Arrays;
 @InterfaceStability.Unstable
 public abstract class INodeAttributeProvider {
 
+  // 访问控制执行者接口
   public static class AuthorizationContext {
     private String fsOwner;
     private String supergroup;

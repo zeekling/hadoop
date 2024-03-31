@@ -1233,6 +1233,7 @@ public class FSNamesystem implements Namesystem, FSNamesystemMBean,
     writeLock();
     try {
       // We shouldn't be calling saveNamespace if we've come up in standby state.
+      // 根据启动选项及其对应存储目录(${dfs.name.dir})，分析存储目录，必要的话从先前的事务恢复过来
       MetaRecoveryContext recovery = startOpt.createRecoveryContext();
       final boolean staleImage
           = fsImage.recoverTransitionRead(startOpt, this, recovery);
