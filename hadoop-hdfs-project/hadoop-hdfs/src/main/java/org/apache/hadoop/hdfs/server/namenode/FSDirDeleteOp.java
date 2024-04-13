@@ -59,6 +59,7 @@ class FSDirDeleteOp {
         ReclaimContext context = new ReclaimContext(
             fsd.getBlockStoragePolicySuite(), collectedBlocks, removedINodes,
             removedUCFiles);
+        // 更核心的删除代码再这个函数里面，会调用destroyAndCollectBlocks删除block
         if (unprotectedDelete(fsd, iip, context, mtime)) {
           filesRemoved = context.quotaDelta().getNsDelta();
           fsn.removeSnapshottableDirs(snapshottableDirs);
@@ -255,6 +256,7 @@ class FSDirDeleteOp {
 
     // collect block and update quota
     if (!targetNode.isInLatestSnapshot(latestSnapshot)) {
+      // 真正删除代码
       targetNode.destroyAndCollectBlocks(reclaimContext);
     } else {
       targetNode.cleanSubtree(reclaimContext, CURRENT_STATE_ID, latestSnapshot);
