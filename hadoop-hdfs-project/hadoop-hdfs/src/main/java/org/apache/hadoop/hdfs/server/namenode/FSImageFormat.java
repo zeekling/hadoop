@@ -225,6 +225,7 @@ public class FSImageFormat {
           FSImageFormatProtobuf.Loader loader = new FSImageFormatProtobuf.Loader(
               conf, fsn, requireSameLayoutVersion);
           impl = loader;
+		  // 开始加载fsimage
           loader.load(file);
         } else {
           Loader loader = new Loader(conf, fsn);

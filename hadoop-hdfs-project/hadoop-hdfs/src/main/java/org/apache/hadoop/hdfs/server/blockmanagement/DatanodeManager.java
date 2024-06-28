@@ -1772,7 +1772,10 @@ public class DatanodeManager {
     }
   }
 
-  /** Handle heartbeat from datanodes. */
+  /** 
+   * Handle heartbeat from datanodes.
+   * 万恶的heartbeat，啥都干。。。
+   * */
   public DatanodeCommand[] handleHeartbeat(DatanodeRegistration nodeReg,
       StorageReport[] reports, final String blockPoolId,
       long cacheCapacity, long cacheUsed, int xceiverCount, 

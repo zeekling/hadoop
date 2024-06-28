@@ -360,6 +360,7 @@ public final class FSImageFormatProtobuf {
       if (!FSImageUtil.checkFileFormat(raFile)) {
         throw new IOException("Unrecognized file format");
       }
+	  // 加载summary
       FileSummary summary = FSImageUtil.loadSummary(raFile);
       if (requireSameLayoutVersion && summary.getLayoutVersion() !=
           HdfsServerConstants.NAMENODE_LAYOUT_VERSION) {
@@ -399,6 +400,7 @@ public final class FSImageFormatProtobuf {
        * a particular step to be started for once.
        */
       Step currentStep = null;
+	  // 是否开启并发加载
       boolean loadInParallel = enableParallelSaveAndLoad(conf);
 
       ExecutorService executorService = null;
