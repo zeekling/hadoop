@@ -213,47 +213,49 @@ public class BlockPlacementPolicyDefault extends BlockPlacementPolicy {
       numOfReplicas = maxNodesAndReplicas[0];
       int maxNodesPerRack = maxNodesAndReplicas[1];
 
-      chooseFavouredNodes(src, numOfReplicas, favoredNodes,
-          favoriteAndExcludedNodes, blocksize, maxNodesPerRack, results,
-          avoidStaleNodes, storageTypes);
+	  // 选择本地local或者青睐的节点
+	  chooseFavouredNodes(src, numOfReplicas, favoredNodes,
+			  favoriteAndExcludedNodes, blocksize, maxNodesPerRack, results,
+			  avoidStaleNodes, storageTypes);
 
-      if (results.size() < numOfReplicas) {
-        // Not enough favored nodes, choose other nodes, based on block
-        // placement policy (HDFS-9393).
-        numOfReplicas -= results.size();
-        for (DatanodeStorageInfo storage : results) {
-          // add localMachine and related nodes to favoriteAndExcludedNodes
-          addToExcludedNodes(storage.getDatanodeDescriptor(),
-              favoriteAndExcludedNodes);
-        }
-        DatanodeStorageInfo[] remainingTargets =
-            chooseTarget(src, numOfReplicas, writer,
-                new ArrayList<DatanodeStorageInfo>(numOfReplicas), false,
-                favoriteAndExcludedNodes, blocksize, storagePolicy, flags,
-                storageTypes);
-        for (int i = 0; i < remainingTargets.length; i++) {
-          results.add(remainingTargets[i]);
-        }
-      }
-      return getPipeline(writer,
-          results.toArray(new DatanodeStorageInfo[results.size()]));
-    } catch (NotEnoughReplicasException nr) {
-      LOG.debug("Failed to choose with favored nodes (={}), disregard favored"
-          + " nodes hint and retry.", favoredNodes, nr);
-      // Fall back to regular block placement disregarding favored nodes hint
-      return chooseTarget(src, numOfReplicas, writer, 
-          new ArrayList<DatanodeStorageInfo>(numOfReplicas), false, 
-          excludedNodes, blocksize, storagePolicy, flags);
-    }
+	  if (results.size() < numOfReplicas) {
+		  // Not enough favored nodes, choose other nodes, based on block
+		  // placement policy (HDFS-9393).
+		  numOfReplicas -= results.size();
+		  for (DatanodeStorageInfo storage : results) {
+			  // add localMachine and related nodes to favoriteAndExcludedNodes
+			  addToExcludedNodes(storage.getDatanodeDescriptor(),
+					  favoriteAndExcludedNodes);
+		  }
+		  // 选择其他DN节点
+		  DatanodeStorageInfo[] remainingTargets =
+			  chooseTarget(src, numOfReplicas, writer,
+					  new ArrayList<DatanodeStorageInfo>(numOfReplicas), false,
+					  favoriteAndExcludedNodes, blocksize, storagePolicy, flags,
+					  storageTypes);
+		  for (int i = 0; i < remainingTargets.length; i++) {
+			  results.add(remainingTargets[i]);
+		  }
+	  }
+	  return getPipeline(writer,
+			  results.toArray(new DatanodeStorageInfo[results.size()]));
+	} catch (NotEnoughReplicasException nr) {
+		LOG.debug("Failed to choose with favored nodes (={}), disregard favored"
+				+ " nodes hint and retry.", favoredNodes, nr);
+		// Fall back to regular block placement disregarding favored nodes hint
+		return chooseTarget(src, numOfReplicas, writer, 
+				new ArrayList<DatanodeStorageInfo>(numOfReplicas), false, 
+				excludedNodes, blocksize, storagePolicy, flags);
+	}
   }
 
   protected void chooseFavouredNodes(String src, int numOfReplicas,
-      List<DatanodeDescriptor> favoredNodes,
-      Set<Node> favoriteAndExcludedNodes, long blocksize, int maxNodesPerRack,
-      List<DatanodeStorageInfo> results, boolean avoidStaleNodes,
-      EnumMap<StorageType, Integer> storageTypes)
-      throws NotEnoughReplicasException {
-    for (int i = 0; i < favoredNodes.size() && results.size() < numOfReplicas;
+		  List<DatanodeDescriptor> favoredNodes,
+		  Set<Node> favoriteAndExcludedNodes, long blocksize, int maxNodesPerRack,
+		  List<DatanodeStorageInfo> results, boolean avoidStaleNodes,
+		  EnumMap<StorageType, Integer> storageTypes)
+		  throws NotEnoughReplicasException {
+		  for (int i = 0; i < favoredNodes.size() && results.size() < numOfReplicas;
         i++) {
       DatanodeDescriptor favoredNode = favoredNodes.get(i);
       // Choose a single node which is local to favoredNode.
@@ -541,6 +543,7 @@ public class BlockPlacementPolicyDefault extends BlockPlacementPolicy {
                                  throws NotEnoughReplicasException {
     final int numOfResults = results.size();
     if (numOfResults == 0) {
+	 // 如果没有选择过DN节点，优先选择本地节点。
       DatanodeStorageInfo storageInfo = chooseLocalStorage(writer,
           excludedNodes, blocksize, maxNodesPerRack, results, avoidStaleNodes,
           storageTypes, true);
@@ -554,6 +557,7 @@ public class BlockPlacementPolicyDefault extends BlockPlacementPolicy {
     }
     final DatanodeDescriptor dn0 = results.get(0).getDatanodeDescriptor();
     if (numOfResults <= 1) {
+	  // 如果副本小于1，需要从远端rack上面选择
       chooseRemoteRack(1, dn0, excludedNodes, blocksize, maxNodesPerRack,
           results, avoidStaleNodes, storageTypes);
       if (--numOfReplicas == 0) {
@@ -563,6 +567,7 @@ public class BlockPlacementPolicyDefault extends BlockPlacementPolicy {
     if (numOfResults <= 2) {
       final DatanodeDescriptor dn1 = results.get(1).getDatanodeDescriptor();
       if (clusterMap.isOnSameRack(dn0, dn1)) {
+		// 如果前面两个是相同rack，选择远端的rack的DN。
         chooseRemoteRack(1, dn0, excludedNodes, blocksize, maxNodesPerRack,
             results, avoidStaleNodes, storageTypes);
       } else if (newBlock){
@@ -576,6 +581,7 @@ public class BlockPlacementPolicyDefault extends BlockPlacementPolicy {
         return writer;
       }
     }
+	// 随机选择DN
     chooseRandom(numOfReplicas, NodeBase.ROOT, excludedNodes, blocksize,
         maxNodesPerRack, results, avoidStaleNodes, storageTypes);
     return writer;
@@ -592,6 +598,7 @@ public class BlockPlacementPolicyDefault extends BlockPlacementPolicy {
   }
 
   /**
+   * 选择本地或者青睐的节点
    * Choose storage of local or favored node.
    * @param localOrFavoredNode local or favored node
    * @param isFavoredNode if target node is favored node
