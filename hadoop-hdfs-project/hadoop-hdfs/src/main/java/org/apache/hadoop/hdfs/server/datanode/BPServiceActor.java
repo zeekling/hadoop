@@ -532,7 +532,8 @@ class BPServiceActor implements Runnable {
     }
     return reportSize;
   }
-
+  
+  // 向NN发送心跳的主要实现
   HeartbeatResponse sendHeartBeat(boolean requestBlockReportLease)
       throws IOException {
     scheduler.scheduleNextHeartbeat();
@@ -587,6 +588,7 @@ class BPServiceActor implements Runnable {
   }
 
   //This must be called only by BPOfferService
+  // 入口函数，开始向NN注册当前DN
   void start() {
     if ((bpThread != null) && (bpThread.isAlive())) {
       //Thread is started already
@@ -827,6 +829,7 @@ class BPServiceActor implements Runnable {
     while (shouldRun()) {
       try {
         // Use returned registration from namenode with updated fields
+		// 向NN注册DataNodde
         newBpRegistration = bpNamenode.registerDatanode(newBpRegistration);
         newBpRegistration.setNamespaceInfo(nsInfo);
         bpRegistration = newBpRegistration;
@@ -858,6 +861,7 @@ class BPServiceActor implements Runnable {
     fullBlockReportLeaseId = 0;
 
     // random short delay - helps scatter the BR from all DNs
+	// 定时汇报block块信息给NN
     scheduler.scheduleBlockReport(dnConf.initialBlockReportDelayMs, true);
   }
 
@@ -875,6 +879,7 @@ class BPServiceActor implements Runnable {
    * No matter what kind of exception we get, keep retrying to offerService().
    * That's the loop that connects to the NameNode and provides basic DataNode
    * functionality.
+   * 当前类本身就是一个异步线程，当前函数为线程的入口函数，线程由start函数启动。
    *
    * Only stop when "shouldRun" or "shouldServiceRun" is turned off, which can
    * happen either at shutdown or due to refreshNamenodes.
@@ -888,6 +893,7 @@ class BPServiceActor implements Runnable {
         // init stuff
         try {
           // setup storage
+		  // 开始连接NN并且注册当前DN,主要分为两个阶段：1、握手，并且校验NS等信息。2、向NN注册当前DN。
           connectToNNAndHandshake();
           break;
         } catch (IOException ioe) {
