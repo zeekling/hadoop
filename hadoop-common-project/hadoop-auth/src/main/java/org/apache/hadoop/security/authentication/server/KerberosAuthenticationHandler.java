@@ -307,6 +307,7 @@ public class KerberosAuthenticationHandler implements AuthenticationHandler {
     }
 
     AuthenticationToken token = null;
+    // 从请求头里面获取Token。
     String authorization = request.getHeader(
         KerberosAuthenticator.AUTHORIZATION);
 
@@ -322,6 +323,7 @@ public class KerberosAuthenticationHandler implements AuthenticationHandler {
             KerberosAuthenticator.NEGOTIATE + "' :  {}", authorization);
       }
     } else {
+      // token必须以NEGOTIATE开头。
       authorization = authorization.substring(
           KerberosAuthenticator.NEGOTIATE.length()).trim();
       final Base64 base64 = new Base64(0);
@@ -329,6 +331,7 @@ public class KerberosAuthenticationHandler implements AuthenticationHandler {
       try {
         final String serverPrincipal =
             KerberosUtil.getTokenServerName(clientToken);
+        // 客户端的token必须包含HTTP/
         if (!serverPrincipal.startsWith("HTTP/")) {
           throw new IllegalArgumentException(
               "Invalid server principal " + serverPrincipal +
@@ -338,6 +341,7 @@ public class KerberosAuthenticationHandler implements AuthenticationHandler {
             new PrivilegedExceptionAction<AuthenticationToken>() {
               @Override
               public AuthenticationToken run() throws Exception {
+                // 开始校验token
                 return runWithPrincipal(serverPrincipal, clientToken,
                       base64, response);
               }
@@ -381,9 +385,11 @@ public class KerberosAuthenticationHandler implements AuthenticationHandler {
                            authenticate);
       }
       if (!gssContext.isEstablished()) {
+        // 认证过程中。可能需要多次交换Token
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         LOG.trace("SPNEGO in progress");
       } else {
+        // 认证完成。
         String clientPrincipal = gssContext.getSrcName().toString();
         KerberosName kerberosName = new KerberosName(clientPrincipal);
         String userName = kerberosName.getShortName();
