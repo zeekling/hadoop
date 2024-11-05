@@ -1606,6 +1606,7 @@ public class CapacityScheduler extends
     // 2. Schedule if there are no reservations
     RMContainer reservedContainer = node.getReservedContainer();
     if (reservedContainer != null) {
+      // 存在预留资源，优先使用预留资源。
       allocateFromReservedContainer(node, withNodeHeartbeat, reservedContainer);
       // Do not schedule if there are any reservations to fulfill on the node
       LOG.debug("Skipping scheduling since node {} is reserved by"
@@ -1620,6 +1621,7 @@ public class CapacityScheduler extends
     if (calculator.computeAvailableContainers(Resources
             .add(node.getUnallocatedResource(), node.getTotalKillableResources()),
         minimumAllocation) <= 0) {
+      // 对于剩余资源不够的情况，无须继续分配资源
       LOG.debug("This node " + node.getNodeID() + " doesn't have sufficient "
           + "available or preemptible resource for minimum allocation");
       ActivitiesLogger.QUEUE.recordQueueActivity(activitiesManager, node,
@@ -1631,6 +1633,7 @@ public class CapacityScheduler extends
       return null;
     }
 
+    // 开始分配或者预留资源
     return allocateOrReserveNewContainers(candidates, withNodeHeartbeat);
   }
 
@@ -1693,6 +1696,7 @@ public class CapacityScheduler extends
   private CSAssignment allocateOrReserveNewContainers(
       CandidateNodeSet<FiCaSchedulerNode> candidates,
       boolean withNodeHeartbeat) {
+    // 优先按照资源池标签从根队列开始分配。
     CSAssignment assignment = getRootQueue().assignContainers(
         getClusterResource(), candidates, new ResourceLimits(labelManager
             .getResourceByLabel(candidates.getPartition(),

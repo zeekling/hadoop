@@ -548,6 +548,7 @@ public class ParentQueue extends AbstractCSQueue {
     // if our queue cannot access this node, just return
     if (schedulingMode == SchedulingMode.RESPECT_PARTITION_EXCLUSIVITY
         && !accessibleToPartition(candidates.getPartition())) {
+      // 没权限
       if (LOG.isDebugEnabled()) {
         long now = System.currentTimeMillis();
         // Do logging every 1 sec to avoid excessive logging.
@@ -574,6 +575,7 @@ public class ParentQueue extends AbstractCSQueue {
     // queue doesn't need more resources.
     if (!super.hasPendingResourceRequest(candidates.getPartition(),
         clusterResource, schedulingMode)) {
+      // 没分配请求
       if (LOG.isDebugEnabled()) {
         long now = System.currentTimeMillis();
         // Do logging every 1 sec to avoid excessive logging.
