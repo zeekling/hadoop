@@ -1696,7 +1696,7 @@ public class CapacityScheduler extends
   private CSAssignment allocateOrReserveNewContainers(
       CandidateNodeSet<FiCaSchedulerNode> candidates,
       boolean withNodeHeartbeat) {
-    // 优先按照资源池标签从根队列开始分配。
+    // 优先从没有资源池标签从根队列开始分配。
     CSAssignment assignment = getRootQueue().assignContainers(
         getClusterResource(), candidates, new ResourceLimits(labelManager
             .getResourceByLabel(candidates.getPartition(),
@@ -1738,6 +1738,7 @@ public class CapacityScheduler extends
       return null;
     }
 
+    // 从资源包含资源标签的节点分配。
     // Try to use NON_EXCLUSIVE
     assignment = getRootQueue().assignContainers(getClusterResource(),
         candidates,

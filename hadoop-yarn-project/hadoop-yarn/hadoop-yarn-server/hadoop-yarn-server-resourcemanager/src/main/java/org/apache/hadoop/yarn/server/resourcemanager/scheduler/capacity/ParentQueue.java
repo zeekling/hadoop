@@ -575,7 +575,7 @@ public class ParentQueue extends AbstractCSQueue {
     // queue doesn't need more resources.
     if (!super.hasPendingResourceRequest(candidates.getPartition(),
         clusterResource, schedulingMode)) {
-      // 没分配请求
+      // 没有请求可以分配。
       if (LOG.isDebugEnabled()) {
         long now = System.currentTimeMillis();
         // Do logging every 1 sec to avoid excessive logging.
@@ -720,6 +720,12 @@ public class ParentQueue extends AbstractCSQueue {
     return assignment;
   }
 
+  /**
+   * 计算是不是可以分配，有资源可以分配，没资源不可以分配。
+   * @param clusterResource 集群资源
+   * @param node 节点信息
+   * @return
+   */
   private boolean canAssign(Resource clusterResource, FiCaSchedulerNode node) {
     // When node == null means global scheduling is enabled, always return true
     if (null == node) {
@@ -782,11 +788,24 @@ public class ParentQueue extends AbstractCSQueue {
     return new ResourceLimits(childLimit);
   }
 
+  /**
+   * 子队列排序。
+   * @param partition
+   * @return
+   */
   private Iterator<CSQueue> sortAndGetChildrenAllocationIterator(
       String partition) {
     return queueOrderingPolicy.getAssignmentIterator(partition);
   }
 
+  /**
+   * 分配资源到子队列。
+   * @param cluster
+   * @param candidates
+   * @param limits
+   * @param schedulingMode
+   * @return
+   */
   private CSAssignment assignContainersToChildQueues(Resource cluster,
       CandidateNodeSet<FiCaSchedulerNode> candidates, ResourceLimits limits,
       SchedulingMode schedulingMode) {

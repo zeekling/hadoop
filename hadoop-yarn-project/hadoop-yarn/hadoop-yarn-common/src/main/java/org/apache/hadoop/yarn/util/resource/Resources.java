@@ -251,6 +251,12 @@ public class Resources {
     return addTo(clone(lhs), rhs);
   }
 
+  /**
+   * result = lhs - rhs
+   * @param lhs
+   * @param rhs
+   * @return
+   */
   public static Resource subtractFrom(Resource lhs, Resource rhs) {
     int maxLength = ResourceUtils.getNumberOfCountableResourceTypes();
     for (int i = 0; i < maxLength; i++) {
@@ -266,6 +272,12 @@ public class Resources {
     return lhs;
   }
 
+  /**
+   * result = lhs - rhs
+   * @param lhs
+   * @param rhs
+   * @return
+   */
   public static Resource subtract(Resource lhs, Resource rhs) {
     return subtractFrom(clone(lhs), rhs);
   }

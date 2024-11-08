@@ -1004,6 +1004,15 @@ public abstract class AbstractCSQueue implements CSQueue {
         parentQ.getIntraQueuePreemptionDisabledInHierarchy());
   }
 
+  /**
+   * 当前队列限制，如果是labeled resource: limit = queue-max-resource，
+   * 如果是non-labeled resource：limit = min(queue-max-resource, limit-set-by-parent)
+   * @param nodePartition
+   * @param clusterResource
+   * @param currentResourceLimits
+   * @param schedulingMode
+   * @return
+   */
   private Resource getCurrentLimitResource(String nodePartition,
       Resource clusterResource, ResourceLimits currentResourceLimits,
       SchedulingMode schedulingMode) {
@@ -1037,6 +1046,15 @@ public abstract class AbstractCSQueue implements CSQueue {
     return childQueues != null && !childQueues.isEmpty();
   }
 
+  /**
+   * 是否可以给当前队列分配资源，在可以分配或者能够预留资源的时候返回true。
+   * @param clusterResource
+   * @param nodePartition
+   * @param currentResourceLimits
+   * @param resourceCouldBeUnreserved
+   * @param schedulingMode
+   * @return
+   */
   boolean canAssignToThisQueue(Resource clusterResource,
       String nodePartition, ResourceLimits currentResourceLimits,
       Resource resourceCouldBeUnreserved, SchedulingMode schedulingMode) {
@@ -1071,6 +1089,7 @@ public abstract class AbstractCSQueue implements CSQueue {
 
       if (Resources.greaterThanOrEqual(resourceCalculator, clusterResource,
           usedExceptKillable, currentLimitResource)) {
+        // 真实已使用的 >= 当前队列的限制
 
         // if reservation continue looking enabled, check to see if could we
         // potentially use this node instead of a reserved node if the application
@@ -1078,6 +1097,7 @@ public abstract class AbstractCSQueue implements CSQueue {
         if (this.reservationsContinueLooking
             && Resources.greaterThan(resourceCalculator, clusterResource,
                 resourceCouldBeUnreserved, Resources.none())) {
+          // 开启运行时预留，👃并且当前节点存在资源可以预留。
           // resource-without-reserved = used - reserved
           Resource newTotalWithoutReservedResource = Resources.subtract(
               usedExceptKillable, resourceCouldBeUnreserved);
@@ -1086,6 +1106,7 @@ public abstract class AbstractCSQueue implements CSQueue {
           // have chance to allocate on this node by unreserving some containers
           if (Resources.lessThan(resourceCalculator, clusterResource,
               newTotalWithoutReservedResource, currentLimitResource)) {
+            // 需要预留的资源没有超过限制。
             if (LOG.isDebugEnabled()) {
               LOG.debug("try to use reserved: " + getQueuePath()
                   + " usedResources: " + queueUsage.getUsed()
@@ -1111,6 +1132,7 @@ public abstract class AbstractCSQueue implements CSQueue {
         }
         return false;
       }
+      // 资源足够，可以给当前队列分配。
       if (LOG.isDebugEnabled()) {
         LOG.debug("Check assign to queue: " + getQueuePath()
             + " nodePartition: " + nodePartition
