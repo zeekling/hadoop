@@ -755,6 +755,15 @@ public class ParentQueue extends AbstractCSQueue {
     return accept;
   }
 
+  /**
+   * 获取子队列的队列限制,计算公式:
+   *   <p>子队列的限制 = min(父队列的可用资源 + 子队列的已使用资源, 子队列的限制)<p/>
+   * @param child
+   * @param clusterResource
+   * @param parentLimits
+   * @param nodePartition
+   * @return
+   */
   private ResourceLimits getResourceLimitsOfChild(CSQueue child,
       Resource clusterResource, Resource parentLimits,
       String nodePartition) {

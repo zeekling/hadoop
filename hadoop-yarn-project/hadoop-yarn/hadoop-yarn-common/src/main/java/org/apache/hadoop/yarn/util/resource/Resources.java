@@ -232,6 +232,12 @@ public class Resources {
     return Resource.newInstance(res);
   }
 
+  /**
+   * lhs = lhs + ths
+   * @param lhs
+   * @param rhs
+   * @return
+   */
   public static Resource addTo(Resource lhs, Resource rhs) {
     int maxLength = ResourceUtils.getNumberOfCountableResourceTypes();
     for (int i = 0; i < maxLength; i++) {
