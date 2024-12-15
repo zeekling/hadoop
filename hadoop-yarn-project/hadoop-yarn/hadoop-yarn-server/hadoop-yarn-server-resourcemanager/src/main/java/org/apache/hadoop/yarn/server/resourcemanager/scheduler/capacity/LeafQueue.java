@@ -1123,6 +1123,16 @@ public class LeafQueue extends AbstractCSQueue {
     }
   }
 
+  /**
+   * 分配资源到子队列的逻辑。
+   * @param clusterResource the resource of the cluster.
+   * @param candidates {@link CandidateNodeSet} the nodes that are considered
+   *                   for the current placement.
+   * @param currentResourceLimits how much overall resource of this queue can use.
+   * @param schedulingMode Type of exclusive check when assign container on a
+   * NodeManager, see {@link SchedulingMode}.
+   * @return
+   */
   @Override
   public CSAssignment assignContainers(Resource clusterResource,
       CandidateNodeSet<FiCaSchedulerNode> candidates,
@@ -1135,6 +1145,7 @@ public class LeafQueue extends AbstractCSQueue {
           + " #applications=" + orderingPolicy.getNumSchedulableEntities());
     }
 
+    // 是否允许抢占。
     setPreemptionAllowed(currentResourceLimits, candidates.getPartition());
 
     // Check for reserved resources, try to allocate reserved container first.
@@ -1228,6 +1239,7 @@ public class LeafQueue extends AbstractCSQueue {
       if (!cul.canAssign && Resources.fitsIn(appReserved, cul.reservation)) {
         userAssignable = false;
       } else {
+        // 资源分配到用户
         userAssignable = canAssignToUser(clusterResource, application.getUser(),
             userLimit, application, candidates.getPartition(),
             currentResourceLimits);

@@ -626,7 +626,7 @@ public class ParentQueue extends AbstractCSQueue {
         break;
       }
 
-      // Schedule
+      // Schedule , 开始给子队列分配资源。
       CSAssignment assignedToChild = assignContainersToChildQueues(
           clusterResource, candidates, resourceLimits, schedulingMode);
       assignment.setType(assignedToChild.getType());
@@ -834,6 +834,7 @@ public class ParentQueue extends AbstractCSQueue {
           getResourceLimitsOfChild(childQueue, cluster, limits.getNetLimit(),
               candidates.getPartition());
 
+      // 分配资源到队列
       CSAssignment childAssignment = childQueue.assignContainers(cluster,
           candidates, childLimits, schedulingMode);
       if(LOG.isDebugEnabled()) {

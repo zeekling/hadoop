@@ -423,7 +423,7 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
     ContainerAllocation allocation;
     NodeType requestLocalityType = null;
 
-    // Data-local
+    // Data-local 优先分配local。
     PendingAsk nodeLocalAsk =
         application.getPendingAsk(schedulerKey, node.getNodeName());
     if (nodeLocalAsk.getCount() > 0) {
@@ -439,7 +439,7 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
       }
     }
 
-    // Rack-local
+    // Rack-local 在Rack-local 分配
     PendingAsk rackLocalAsk =
         application.getPendingAsk(schedulerKey, node.getRackName());
     if (rackLocalAsk.getCount() > 0) {
@@ -466,7 +466,7 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
       }
     }
 
-    // Off-switch
+    // Off-switch 检查不限制
     PendingAsk offSwitchAsk =
         application.getPendingAsk(schedulerKey, ResourceRequest.ANY);
     if (offSwitchAsk.getCount() > 0) {
@@ -922,7 +922,7 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
         return CSAssignment.SKIP_ASSIGNMENT;
       }
       
-      // Schedule in priority order
+      // Schedule in priority order 按照优先级顺序分配资源
       for (SchedulerRequestKey schedulerKey : application.getSchedulerKeys()) {
         ContainerAllocation result = allocate(clusterResource, candidates,
             schedulingMode, resourceLimits, schedulerKey, null);
