@@ -1720,14 +1720,17 @@ int exec_container(const char *command_file) {
       fprintf(ERRORFILE, "exec failed - %s\n", strerror(errno));
       _exit(DOCKER_EXEC_FAILED);
     } else {
+      // 切换用户
       if (change_user(user_detail->pw_uid, user_detail->pw_gid) != 0) {
         _exit(DOCKER_EXEC_FAILED);
       }
+      // 切换工作目录
       ret = chdir(workdir);
       if (ret != 0) {
         fprintf(ERRORFILE, "chdir failed - %s", strerror(errno));
         _exit(DOCKER_EXEC_FAILED);
       }
+      // 执行启动脚本。
       execve(binary, args, env);
       fprintf(ERRORFILE, "exec failed - %s\n", strerror(errno));
       _exit(DOCKER_EXEC_FAILED);
@@ -2971,6 +2974,7 @@ int mount_cgroup(const char *pair, const char *hierarchy) {
       goto cleanup;
     }
     if (mount("none", mount_path, "cgroup", 0, controller) == 0) {
+      // 挂载cgroup成功
       char *buf = stpncpy(hier_path, mount_path, EXECUTOR_PATH_MAX);
       *buf++ = '/';
       snprintf(buf, EXECUTOR_PATH_MAX - (buf - hier_path), "%s", hierarchy);
@@ -2986,6 +2990,7 @@ int mount_cgroup(const char *pair, const char *hierarchy) {
       }
       if (mkdirs(hier_path, perms) == 0) {
         change_owner(hier_path, nm_uid, nm_gid);
+        // 修改子目录权限。
         chown_dir_contents(hier_path, nm_uid, nm_gid);
       }
     } else {
