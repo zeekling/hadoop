@@ -54,6 +54,7 @@ import org.apache.hadoop.thirdparty.com.google.common.annotations.VisibleForTest
  * The 2nd replica is placed on a datanode that is on a different rack.
  * The 3rd replica is placed on a datanode which is on a different node of the
  * rack as the second replica.
+ * 第一个副本尽可能放在写入数据的节点，第二个副本放在与第一个副本不在同一机架（rack）下的节点，第三个副本与第二副本放在同一个机架。
  */
 @InterfaceAudience.Private
 public class BlockPlacementPolicyDefault extends BlockPlacementPolicy {

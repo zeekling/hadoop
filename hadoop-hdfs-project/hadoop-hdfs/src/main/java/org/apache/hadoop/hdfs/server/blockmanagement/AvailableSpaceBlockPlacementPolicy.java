@@ -41,6 +41,7 @@ import org.apache.hadoop.net.Node;
 
 /**
  * Space balanced block placement policy.
+ * 实现存储平衡。
  */
 public class AvailableSpaceBlockPlacementPolicy extends
     BlockPlacementPolicyDefault {

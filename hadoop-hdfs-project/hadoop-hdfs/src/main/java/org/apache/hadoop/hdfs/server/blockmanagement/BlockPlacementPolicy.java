@@ -59,6 +59,7 @@ public abstract class BlockPlacementPolicy {
    * choose <i>numOfReplicas</i> data nodes for <i>writer</i> 
    * to re-replicate a block with size <i>blocksize</i> 
    * If not, return as many as we can.
+   *  核心的副本放置策略实现，返回副本放置数量的存储位置。如果有效节点数量不够（少于副本数），返回尽可能多的节点，而非失败
    *
    * @param srcPath the file to which this chooseTargets is being invoked.
    * @param numOfReplicas additional number of replicas wanted.
@@ -116,6 +117,7 @@ public abstract class BlockPlacementPolicy {
   /**
    * Verify if the block's placement meets requirement of placement policy,
    * i.e. replicas are placed on no less than minRacks racks in the system.
+   * 判断传入的放置方式是否符合要求。
    * 
    * @param locs block with locations
    * @param numOfReplicas replica number of file to be verified
@@ -127,6 +129,7 @@ public abstract class BlockPlacementPolicy {
   /**
    * Select the excess replica storages for deletion based on either
    * delNodehint/Excess storage types.
+   * 当副本数量较多时，选择需要删除的节点
    *
    * @param availableReplicas
    *          available replicas

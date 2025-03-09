@@ -36,6 +36,7 @@ import org.apache.hadoop.net.NodeBase;
  *     replica node. 
  * The 3rd replica is placed on a datanode which is on a different node-group
  *     but the same rack as the second replica node.
+ *  第一、二个副本和Default副本放置相同，第三个副本在第二个机架下选择不同node group的节点。
  */
 public class BlockPlacementPolicyWithNodeGroup extends BlockPlacementPolicyDefault {
 

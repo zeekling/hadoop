@@ -29,6 +29,7 @@ import java.util.*;
  * The class is responsible for choosing the desired number of targets
  * for placing block replicas.
  * The strategy is that it tries its best to place the replicas to most racks.
+ * 将数据存储到更多的机架下。
  */
 @InterfaceAudience.Private
 public class BlockPlacementPolicyRackFaultTolerant extends BlockPlacementPolicyDefault {
