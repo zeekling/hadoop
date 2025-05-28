@@ -303,10 +303,11 @@ public class NamenodeWebHdfsMethods {
     }
 
     if (op == PutOpParam.Op.CREATE) {
-      //choose a datanode near to client 
+      //choose a datanode near to client
       final DatanodeDescriptor clientNode = bm.getDatanodeManager(
           ).getDatanodeByHost(remoteAddr);
       if (clientNode != null) {
+        // hdfs选块，指定一个DN，在DN上面调用dfsClient
         final DatanodeStorageInfo[] storages = bm.chooseTarget4WebHDFS(
             path, clientNode, excludes, blocksize);
         if (storages.length > 0) {

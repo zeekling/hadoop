@@ -189,6 +189,12 @@ public class WebHdfsHandler extends SimpleChannelInboundHandler<HttpRequest> {
     ctx.writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE);
   }
 
+  /**
+   * web端上传文件。
+   * @param ctx
+   * @throws IOException
+   * @throws URISyntaxException
+   */
   private void onCreate(ChannelHandlerContext ctx)
     throws IOException, URISyntaxException {
     writeContinueHeader(ctx);
@@ -214,6 +220,7 @@ public class WebHdfsHandler extends SimpleChannelInboundHandler<HttpRequest> {
       }
     }
 
+    // 创建上传文件的dfsClient
     final DFSClient dfsClient = newDfsClient(nnId, confForCreate);
     OutputStream out = dfsClient.createWrappedOutputStream(dfsClient.create(
         path, permission, flags, createParent, replication, blockSize, null,
